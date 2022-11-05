@@ -1,48 +1,14 @@
 import { useLoaderData } from "react-router-dom"; // Se utiliza para acceder a lo que se retorne el loader
+import { obtenerClientes } from "../data/clientes";
 import Cliente from "../components/Cliente";
 
 //Esta funcion se va a ejecutar cuando el componente este listo, es una funcion de React Router Dom.
 //Es ideal para cargar un state o cunsultar una API y obtener un resultado que se quiera mostrar en un componente.
 //Esta funcion siempre retorna algo. //Es similar a un useEffect
 export function loader() {
-  const clientes = [
-    {
-      id: 1,
-      nombre: "Juan",
-      telefono: 102013313,
-      email: "juan@juan.com",
-      empresa: "Codigo Con Juan",
-    },
-    {
-      id: 2,
-      nombre: "Karen",
-      telefono: 138198313,
-      email: "karen@juan.com",
-      empresa: "Codigo Con Juan",
-    },
-    {
-      id: 3,
-      nombre: "Josue",
-      telefono: 31983913,
-      email: "josue@juan.com",
-      empresa: "Codigo Con Juan",
-    },
-    {
-      id: 4,
-      nombre: "Miguel",
-      telefono: 319381983,
-      email: "miguel@juan.com",
-      empresa: "Codigo Con Juan",
-    },
-    {
-      id: 5,
-      nombre: "Pedro",
-      telefono: 1398198938,
-      email: "pedro@juan.com",
-      empresa: "Codigo Con Juan",
-    },
-  ];
+  const clientes = obtenerClientes();
 
+  //Siempre el loader debe retornar algo
   return clientes;
 }
 

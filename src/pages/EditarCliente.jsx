@@ -1,11 +1,32 @@
-//useNavigate nos permite navegar hacia otra pagina en caso de que el usuario presione un boton o haya pasado una validación
-import { useNavigate, Form, useActionData, redirect } from "react-router-dom";
+import { obtenerCliente, actualizarCliente } from "../data/clientes";
 import Formulario from "../components/Formulario";
+import {
+  Form,
+  useNavigate,
+  useLoaderData,
+  useActionData,
+  redirect,
+} from "react-router-dom";
 import Error from "../components/Error";
-import { agregarCliente } from "../data/clientes";
 
-//Metodo para enviar formulario
-export async function action({ request }) {
+//Loader para cargar el cliente que se va a editar
+export async function loader({ params }) {
+  const cliente = await obtenerCliente(params.clienteId);
+
+  //Validadndo el Objeto cliente. Y mostrando error si no se encuentra
+  if (Object.values(cliente).length === 0) {
+    throw new Response("", {
+      status: 404,
+      statusText: "El cliente no fue encontrado",
+    });
+  }
+
+  //console.log(cliente);
+  return cliente;
+}
+
+//Action para Submit el Cliente editado. En esta caso el action toma como argumento un params para identificar al cliente que se va a editar
+export async function action({ request, params }) {
   const formData = await request.formData();
 
   const datos = Object.fromEntries(formData); //Datos contienen lo ingresado en el formulario por el usuario
@@ -35,24 +56,23 @@ export async function action({ request }) {
     return errores;
   }
 
-  //Agregar Cliente. Se le agrega el await para esperar que se agrege el cliente y no se ejecute nada mas en el codigo.
-  await agregarCliente(datos);
+  //Actualizar el cliente
+  await actualizarCliente(params.clienteId, datos);
 
   //El action siempre retorna algo. En este caso retornamos un redirect para enviar al usuario hacia otra pagina.
   return redirect("/");
 }
 
-const NuevoCliente = () => {
-  //Obteniendo el resultado de un action
-  const errores = useActionData();
-
+function EditarCliente() {
   const navigate = useNavigate();
+  const cliente = useLoaderData();
+  const errores = useActionData();
 
   return (
     <>
-      <h1 className="font-black text-4xl text-blue-900">Nuevo Cliente</h1>
+      <h1 className="font-black text-4xl text-blue-900">Editar Cliente</h1>
       <p className="mt-3">
-        Llena todos los campos para registrar un nuevo cliente
+        A continuacion podrás modificar los datos de un cliente
       </p>
 
       <div className="flex justify-end">
@@ -71,16 +91,16 @@ const NuevoCliente = () => {
 
         <Form method="post" noValidate>
           {/* "noValidate desabilita la validacion de html5" */}
-          <Formulario />
+          <Formulario cliente={cliente} />
           <input
             type="submit"
             className="mt-5 w-full bg-blue-800 hover:bg-blue-900 transition-colors active:bg-blue-800 p-3 uppercase font-bold text-white text-lg cursor-pointer"
-            value="Registrar Cliente"
+            value="Guardar Cambios"
           />
         </Form>
       </div>
     </>
   );
-};
+}
 
-export default NuevoCliente;
+export default EditarCliente;
